@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dynamsoft Barcode Reader Sample</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@8.4.0/dist/dbr.js" data-productKeys="t0068NQAAAA8GsN4rKXQ8PiUBy5dK5w15oU9DrJpaEaBJFcgt7tcuOivJSqzcUTXbG0zw2VhIsSmX6mQJbHIS748/Fb5v5hk="></script>
+    <style>
+        .barcode-polygon {
+          fill:rgba(85,240,40,0);          
+          stroke:green;
+          stroke-width:5;
+        }
+        
+        .barcode-polygon:hover {
+          fill:rgba(85,240,40,0.5);
+          stroke:green;
+          stroke-width:5;
+        }
+
+        /* Tooltip text */
+        .tooltip .tooltiptext {
+          visibility: hidden;
+          width: 120px;
+          background-color: black;
+          color: #fff;
+          text-align: center;
+          padding: 5px 0;
+          border-radius: 6px;
+         
+          /* Position the tooltip text - see examples below! */
+          position: absolute;
+          z-index: 1;
+        }
+      </style>
+</head>
+
+<body>
+   
+    <input type="file" id="barcode-file" onchange="loadfile()" accept=".jpg,.jpeg,.png,.bmp" />
+    <button type="button" onclick='decode()'>Decode</button>
+    <div id="imgContainer" style="width:100%;position:relative;">
+    </div>
+    <div id="resultContainer">
+    </div>
+    
+    <script>
+        let reader = null;
+        var results = [];
+        window.onresize = updateSVGSize;
+        
+        function updateSVGSize() {
+            var imgContainer =document.getElementById("imgContainer");
+            var image = imgContainer.getElementsByTagName("img")[0];
+            var svg = imgContainer.getElementsByTagName("svg")[0];
+            svg.style.width=image.width;
+        }
+        
+        async function decode(){
+            reader = reader || await Dynamsoft.DBR.BarcodeReader.createInstance();
+            var image = getImageData();
+            results = await reader.decode(image);	
+            var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+            svg.style.width = image.width;
+            svg.style.top = 0;
+            svg.style.left = 0;
+            svg.style.position = "absolute";
+            svg.setAttribute("viewBox","0 0 "+image.naturalWidth+" "+image.naturalHeight);
+            
+            for(let j = 0; j < results.length; j++){
+                showResult(j, svg, image)
+            }
+            var imgContainer =document.getElementById("imgContainer");
+            clearElements(imgContainer,"svg");
+            imgContainer.append(svg);
+        }
+        
+        function showResult(index, svg, image){
+            var result = results[index];
+            var points = getPointsData(result.localizationResult,image);
+            
+            var polygon = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+            polygon.setAttribute("points",points);
+            polygon.setAttribute("class","barcode-polygon");
+            polygon.setAttribute("onmouseover","mouseover(this)");
+            polygon.setAttribute("index",index);
+            
+            var title = document.createElementNS("http://www.w3.org/2000/svg","title");
+            title.textContent = result.barcodeText;
+            polygon.append(title);
+            
+            svg.append(polygon);
+        }
+        
+        function mouseover(polygon){
+            console.log(polygon.getAttribute("index"));
+        }
+        
+        function getPointsData(lr,image){
+            //var ratio = image.naturalWidth/image.width;
+            var pointsData = lr.x1+","+lr.y1 + " ";
+            pointsData = pointsData+ lr.x2+","+lr.y2 + " ";
+            pointsData = pointsData+ lr.x3+","+lr.y3 + " ";
+            pointsData = pointsData+ lr.x4+","+lr.y4;
+            return pointsData;
+        }
+        
+        function getImageData(){
+            var imgContainer =document.getElementById("imgContainer");
+            var img = imgContainer.getElementsByTagName("img")[0];
+            return img;
+        }
+        
+        function loadfile() { 
+            let name = document.getElementById('barcode-file');
+            if (name.files.length == 0) {
+                return;
+            }
+            showLocalImage(name.files)
+        }
+        
+        function showLocalImage(files){
+            var imgContainer =document.getElementById("imgContainer");
+            imgContainer.innerHTML="";
+            for(let i = 0; i < files.length; ++i){
+                var file = files[i];
+                thisType = file.type,
+                thisSize = file.size,
+                fileReader = new FileReader();		
+                fileReader.onload = function(e){
+                    appendImg(e.target.result);
+                };		
+                fileReader.onerror = function () {
+                    console.warn('oops, something went wrong.');
+                };			
+                fileReader.readAsDataURL(file);	
+            }
+        }
+        
+        function appendImg(data){
+            var imgContainer =document.getElementById("imgContainer");
+            img = document.createElement("img");
+            img.src = data;
+            img.style="width:100%;max-width:700px;"
+            imgContainer.append(img);
+        }
+        
+        function clearElements(parent,tagName){
+            var elements=parent.getElementsByTagName(tagName);
+            while (elements.length>0){
+                var ele=elements[0];
+                ele.remove();
+            }
+        }
+    </script>
+</body>
+
+</html>
