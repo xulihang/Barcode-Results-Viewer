@@ -44,7 +44,7 @@
         async function decode(){
             reader = reader || await Dynamsoft.DBR.BarcodeReader.createInstance();
             var image = getImageData();
-            results = await reader.decode(image);	
+            results = await reader.decode(image);
             var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
             svg.style.width = image.width;
             svg.style.top = 0;
@@ -68,7 +68,7 @@
         function showResult(index, svg, image){
             var result = results[index];
             var points = getPointsData(result.localizationResult,image);
-            
+            var a = document.createElementNS("http://www.w3.org/2000/svg","a");
             var polygon = document.createElementNS("http://www.w3.org/2000/svg","polygon");
             polygon.setAttribute("points",points);
             polygon.setAttribute("class","barcode-polygon");
@@ -78,8 +78,8 @@
             var title = document.createElementNS("http://www.w3.org/2000/svg","title");
             title.textContent = result.barcodeText;
             polygon.append(title);
-            
-            svg.append(polygon);
+            a.append(polygon)
+            svg.append(a);
             
             var resultList = document.getElementById("result-list");
             var listItem = document.createElement("li");
@@ -123,13 +123,13 @@
                 var file = files[i];
                 thisType = file.type,
                 thisSize = file.size,
-                fileReader = new FileReader();		
+                fileReader = new FileReader();
                 fileReader.onload = function(e){
                     appendImg(e.target.result);
-                };		
+                };
                 fileReader.onerror = function () {
                     console.warn('oops, something went wrong.');
-                };			
+                };
                 fileReader.readAsDataURL(file);	
             }
         }
