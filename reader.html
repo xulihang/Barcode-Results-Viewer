@@ -30,6 +30,7 @@
     <div id="imgContainer" style="width:100%;position:relative;">
     </div>
     <script>
+        Dynamsoft.DBR.BarcodeScanner.organizationID = "100180174";
         let reader = null;
         var results = [];
         window.onresize = updateSVGSize;
@@ -52,8 +53,8 @@
             svg.style.position = "absolute";
             svg.setAttribute("viewBox","0 0 "+image.naturalWidth+" "+image.naturalHeight);
             clearPreviousResults();
-            for(let j = 0; j < results.length; j++){
-                showResult(j, svg, image)
+            for(let i = 0; i < results.length; i++){
+                showResult(i, svg)
             }
             imgContainer.append(svg);
         }
@@ -65,9 +66,9 @@
             clearElements(imgContainer,"svg");
         }
         
-        function showResult(index, svg, image){
+        function showResult(index, svg){
             var result = results[index];
-            var points = getPointsData(result.localizationResult,image);
+            var points = getPointsData(result.localizationResult);
             var a = document.createElementNS("http://www.w3.org/2000/svg","a");
             var polygon = document.createElementNS("http://www.w3.org/2000/svg","polygon");
             polygon.setAttribute("points",points);
@@ -89,11 +90,10 @@
         }
         
         function mouseover(polygon){
-            console.log(polygon.getAttribute("index"));
+            console.log(results[polygon.getAttribute("index")]);
         }
         
-        function getPointsData(lr,image){
-            //var ratio = image.naturalWidth/image.width;
+        function getPointsData(lr){
             var pointsData = lr.x1+","+lr.y1 + " ";
             pointsData = pointsData+ lr.x2+","+lr.y2 + " ";
             pointsData = pointsData+ lr.x3+","+lr.y3 + " ";
@@ -138,7 +138,7 @@
             var imgContainer =document.getElementById("imgContainer");
             img = document.createElement("img");
             img.src = data;
-            img.style="width:100%;max-width:700px;"
+            img.style="width:100%;max-width:500px;"
             imgContainer.append(img);
         }
         
