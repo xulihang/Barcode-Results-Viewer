@@ -119,7 +119,7 @@ function showOverlayOnSVG(results){
     }
 }
 
-async function updateSVGViewBox(width,height){
+function updateSVGViewBox(width,height){
     var scannerUI =  document.getElementById("scanner");
     if (scannerUI.getElementsByTagName("svg").length>0) {
         var svg = scannerUI.getElementsByTagName("svg")[0];
